@@ -24,7 +24,7 @@ _start:
     mov edx, 1
     syscall
 
-    mov eax, 60             ; SYS_exit
+    mov eax, 60            
     xor edi, edi
     syscall
 
