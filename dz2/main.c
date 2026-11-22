@@ -30,7 +30,7 @@ static double measure(void *(*copy_fn)(void *, const void *, size_t),
     double start = now_seconds();
     for (int i = 0; i < inner; ++i) {
         copy_fn(dst, src, n);
-        sink ^= dst[(size_t)i % n]; /* make copied data observable */
+        sink ^= dst[(size_t)i % n]; 
     }
     return now_seconds() - start;
 }
@@ -54,7 +54,6 @@ int main(void) {
 
     double asm_times[RUNS], libc_times[RUNS];
 
-    /* Прогрев обеих реализаций до измерений */
     asm_memcpy(dst, src, SIZE);
     memcpy(dst, src, SIZE);
 
@@ -63,8 +62,7 @@ int main(void) {
     printf("Повторов в одном прогоне: %d; прогонов: %d\n\n", INNER, RUNS);
     puts("Прогон | asm_memcpy, мс | libc memcpy, мс");
 
-    for (int r = 0; r < RUNS; ++r) {
-        /* Меняем порядок, чтобы уменьшить влияние порядка запусков */
+    for (int r = 0; r < RUNS; ++r) {    
         double a, l;
         if ((r & 1) == 0) {
             a = measure(asm_memcpy, dst, src, SIZE, INNER);
