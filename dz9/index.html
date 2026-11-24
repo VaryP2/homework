@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Простой WebSocket чат</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 30px;
+        }
+
+        .chat {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #cccccc;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        input {
+            padding: 8px;
+            margin: 5px 0;
+            width: 70%;
+        }
+
+        button {
+            padding: 8px 12px;
+            margin: 5px 0;
+            cursor: pointer;
+        }
+
+        #messages {
+            height: 250px;
+            padding: 10px;
+            overflow-y: auto;
+            background-color: #eeeeee;
+            border: 1px solid #cccccc;
+            white-space: pre-wrap;
+        }
+
+        #status {
+            color: #555555;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat">
+        <h1>WebSocket чат</h1>
+
+        <p>Имя:</p>
+        <input type="text" id="name" value="Гость">
+
+        <p>
+            <button id="connect">Подключиться</button>
+            <button id="disconnect">Отключиться</button>
+        </p>
+
+        <p id="status">Статус: не подключено</p>
+
+        <h3>Сообщения:</h3>
+        <div id="messages"></div>
+
+        <p>Текст сообщения:</p>
+        <input type="text" id="message" placeholder="Введите сообщение">
+        <button id="send">Отправить</button>
+    </div>
+
+    <script>
+        var socket = null;
+
+        function addMessage(text) {
+            var messages = document.getElementById("messages");
+            messages.innerHTML += text + "<br>";
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        document.getElementById("connect").onclick = function() {
+            if (socket != null && socket.readyState == WebSocket.OPEN) {
+                return;
+            }
+
+            var address = "ws://" + window.location.host + "/chat";
+            socket = new WebSocket(address);
+
+            socket.onopen = function() {
+                document.getElementById("status").innerHTML = "Статус: подключено";
+                addMessage("Соединение установлено");
+            };
+
+            socket.onmessage = function(event) {
+                addMessage(event.data);
+            };
+
+            socket.onclose = function() {
+                document.getElementById("status").innerHTML = "Статус: отключено";
+                addMessage("Соединение закрыто");
+            };
+
+            socket.onerror = function() {
+                addMessage("Произошла ошибка соединения");
+            };
+        };
+
+        document.getElementById("send").onclick = function() {
+            var message = document.getElementById("message").value;
+            var name = document.getElementById("name").value;
+
+            if (socket == null || socket.readyState != WebSocket.OPEN) {
+                addMessage("Сначала подключитесь к серверу");
+                return;
+            }
+
+            if (message == "") {
+                return;
+            }
+
+            var data = {
+                name: name,
+                text: message
+            };
+
+            socket.send(JSON.stringify(data));
+            document.getElementById("message").value = "";
+        };
+
+        document.getElementById("disconnect").onclick = function() {
+            if (socket != null) {
+                socket.close();
+            }
+        };
+
+        document.getElementById("message").onkeydown = function(event) {
+            if (event.key == "Enter") {
+                document.getElementById("send").click();
+            }
+        };
+    </script>
+</body>
+</html>
