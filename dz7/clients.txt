@@ -1,0 +1,32 @@
+Пример ожидаемого вывода при запуске сервера и подключении трёх клиентов:
+
+[server] listening on 0.0.0.0:8080
+[server] press Ctrl+C to stop
+[server] clients=1
+[worker] connected: 127.0.0.1:53120
+[server] clients=2
+[worker] connected: 127.0.0.1:53122
+[server] clients=3
+[worker] connected: 127.0.0.1:53124
+
+Клиент 1:
+client-1
+
+Клиент 2:
+client-2
+
+Клиент 3:
+client-3
+
+После закрытия клиентов:
+
+[server] client disconnected, clients=2
+[server] client disconnected, clients=1
+[server] client disconnected, clients=0
+
+При Ctrl+C:
+
+[server] shutdown requested
+[server] stopped cleanly
+
+
